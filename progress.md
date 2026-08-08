@@ -7,7 +7,7 @@
 ## 阶段清单（按序迭代）
 
 - [x] **阶段 0 骨架**：CMake + 主窗口 + RequestPanel（GET/POST/URL/Body）+ ResponsePanel（状态/耗时/文本响应）+ jsonview 库接入（构建通过，二进制 86KB）
-- [ ] **阶段 1 响应 JSON 树**：ResponsePanel 嵌入 JsonTreeModel/Delegate（复用 jsonview），JSON 响应树形展示（而非纯文本）
+- [x] **阶段 1 响应 JSON 树**：ResponsePanel 嵌入 JsonTreeModel/Delegate（复用 jsonview），JSON 响应树形展示（而非纯文本），树形/文本双视图 + 状态着色 + 复制 + 浅色紫配主题
 - [ ] **阶段 2 集合/环境**：左栏集合树（集合→请求）+ 环境变量管理（多环境 + `{{var}}` 占位符替换 URL/Headers/Body）
 - [ ] **阶段 3 历史记录**：SQLite 存请求历史（方法/URL/时间/状态），点击回填请求区
 - [ ] **阶段 4 Headers 编辑**：请求 Headers 表编辑（Key/Value 行）+ Params 表（自动拼到 URL）
@@ -19,6 +19,7 @@
 | 轮次 | 时间 | 完成 | 构建 | 备注 |
 |------|------|------|------|------|
 | 0 | 22:05 | 骨架 | ✅ | 初始化 |
+| 1 | 本轮 | 阶段1 JSON 树 | ✅ | ResponsePanel 嵌入 jsonview 懒加载树；树形/文本切换；状态着色；浅色紫配主题 QSS；冒烟测试通过 |
 
 ## 构建命令
 

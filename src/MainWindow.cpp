@@ -1,6 +1,9 @@
 #include "MainWindow.h"
 #include "RequestPanel.h"
 #include "ResponsePanel.h"
+#include "CollectionTree.h"
+#include "CollectionStore.h"
+#include "SaveToCollectionDialog.h"
 #include <QSplitter>
 #include <QStatusBar>
 #include <QLabel>
@@ -8,7 +11,7 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle(QStringLiteral("pulse-qt"));
-    resize(1200, 800);
+    resize(1400, 850);
 
     // ── 浅色主题：白底紫配 #6d4aff ──
     qApp->setStyleSheet(QStringLiteral(R"(
@@ -23,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus, QTreeView:focus {
             border-color: #6d4aff;
         }
+        QTreeWidget::item { padding: 2px; }
+        QTreeWidget::item:selected { background: #ede9ff; color: #2c2c2c; border-radius: 3px; }
         QPushButton {
             background: #ffffff; color: #2c2c2c;
             border: 1px solid #d0d0e8; border-radius: 4px; padding: 4px 14px;
@@ -51,16 +56,51 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         QScrollBar::handle:horizontal { background: #c9c9de; border-radius: 5px; min-width: 24px; }
         QScrollBar::handle:horizontal:hover { background: #6d4aff; }
         QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+        QMenu { background: #ffffff; border: 1px solid #d8d8ea; border-radius: 4px; padding: 4px; }
+        QMenu::item { padding: 5px 22px; border-radius: 3px; }
+        QMenu::item:selected { background: #ede9ff; }
+        QHeaderView::section {
+            background: #f4f3fb; color: #555555; border: none;
+            border-bottom: 1px solid #d8d8ea; padding: 4px;
+        }
     )"));
 
     auto *splitter = new QSplitter(Qt::Horizontal, this);
+
+    m_collections = new CollectionTree(this);
+    m_collections->setMinimumWidth(220);
+    splitter->addWidget(m_collections);
+
     m_request = new RequestPanel(this);
-    m_response = new ResponsePanel(this);
     splitter->addWidget(m_request);
+
+    m_response = new ResponsePanel(this);
     splitter->addWidget(m_response);
-    splitter->setStretchFactor(0, 3);
-    splitter->setStretchFactor(1, 2);
+
+    splitter->setStretchFactor(0, 2);
+    splitter->setStretchFactor(1, 4);
+    splitter->setStretchFactor(2, 3);
     setCentralWidget(splitter);
 
+    // 集合请求 → 请求区回填
+    connect(m_collections, &CollectionTree::requestActivated,
+            m_request, &RequestPanel::loadRequest);
+    // 保存到集合
+    connect(m_request, &RequestPanel::saveToCollectionRequested,
+            this, &MainWindow::openSaveToCollection);
+
     statusBar()->addWidget(new QLabel(QStringLiteral("pulse-qt v%1").arg(APP_VERSION), this));
+}
+
+void MainWindow::openSaveToCollection() {
+    m_saveDialog = new SaveToCollectionDialog(
+        m_request->method(), m_request->url(), m_request->bodyText(), this);
+    m_saveDialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(m_saveDialog, &QDialog::accepted, this, [this]() {
+        const auto target = m_saveDialog->target();
+        CollectionStore::instance()->addRequest(
+            target.first, target.second, m_saveDialog->requestName(),
+            {m_request->method(), m_request->url(), m_request->bodyText()});
+    });
+    m_saveDialog->open();
 }

@@ -14,11 +14,20 @@ public:
     explicit RequestPanel(QWidget *parent = nullptr);
     ~RequestPanel() override;
 
+    QString method() const;
+    QString url() const;
+    QString bodyText() const;
+
+public slots:
+    void loadRequest(const QString &method, const QString &url, const QString &body);
+
 signals:
     void responseReceived(int status, qint64 msec, const QByteArray &body);
+    void saveToCollectionRequested();
 
 private slots:
     void sendRequest();
+    void saveToCollection();
 
 private:
     QComboBox *m_method = nullptr;
