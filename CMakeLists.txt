@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(pulse-qt VERSION 0.3.0 LANGUAGES CXX)
+project(pulse-qt VERSION 0.4.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,6 +32,10 @@ qt_add_executable(pulse-qt
     src/EnvironmentDialog.h
     src/SaveToCollectionDialog.cpp
     src/SaveToCollectionDialog.h
+    src/HistoryStore.cpp
+    src/HistoryStore.h
+    src/HistoryList.cpp
+    src/HistoryList.h
 )
 
 target_link_libraries(pulse-qt PRIVATE jsonview Qt6::Widgets Qt6::Network Qt6::Sql)

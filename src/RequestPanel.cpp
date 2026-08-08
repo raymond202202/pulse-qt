@@ -70,8 +70,11 @@ void RequestPanel::saveToCollection() {
 
 void RequestPanel::sendRequest() {
     // 发送前用当前环境变量解析 {{var}} 占位符
-    const QString resolvedUrl = EnvironmentStore::instance()->resolve(m_url->text().trimmed());
-    const QString resolvedBody = EnvironmentStore::instance()->resolve(m_body->toPlainText());
+    m_sentMethod = m_method->currentText().toUpper();
+    m_sentUrl = m_url->text().trimmed();
+    m_sentBody = m_body->toPlainText();
+    const QString resolvedUrl = EnvironmentStore::instance()->resolve(m_sentUrl);
+    const QString resolvedBody = EnvironmentStore::instance()->resolve(m_sentBody);
     if (resolvedUrl.isEmpty()) return;
     const QUrl url(resolvedUrl);
     const QByteArray method = m_method->currentText().toUpper().toUtf8();

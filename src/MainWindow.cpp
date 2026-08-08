@@ -2,9 +2,12 @@
 #include "RequestPanel.h"
 #include "ResponsePanel.h"
 #include "CollectionTree.h"
+#include "HistoryList.h"
 #include "CollectionStore.h"
+#include "HistoryStore.h"
 #include "SaveToCollectionDialog.h"
 #include <QSplitter>
+#include <QTabWidget>
 #include <QStatusBar>
 #include <QLabel>
 #include <QApplication>
@@ -67,9 +70,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     auto *splitter = new QSplitter(Qt::Horizontal, this);
 
+    // 左栏：集合 / 历史 页签
+    m_leftTabs = new QTabWidget(this);
+    m_leftTabs->setMinimumWidth(230);
     m_collections = new CollectionTree(this);
-    m_collections->setMinimumWidth(220);
-    splitter->addWidget(m_collections);
+    m_history = new HistoryList(this);
+    m_leftTabs->addTab(m_collections, QStringLiteral("集合"));
+    m_leftTabs->addTab(m_history, QStringLiteral("历史"));
+    splitter->addWidget(m_leftTabs);
 
     m_request = new RequestPanel(this);
     splitter->addWidget(m_request);
@@ -85,6 +93,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // 集合请求 → 请求区回填
     connect(m_collections, &CollectionTree::requestActivated,
             m_request, &RequestPanel::loadRequest);
+    // 历史点击 → 请求区回填
+    connect(m_history, &HistoryList::requestActivated,
+            m_request, &RequestPanel::loadRequest);
+    // 发送完成后自动记录历史（存发送时的原始值 + 响应状态/耗时）
+    connect(m_request, &RequestPanel::responseReceived, this,
+            [this](int status, qint64 msec, const QByteArray &) {
+        HistoryStore::instance()->addEntry(
+            m_request->sentMethod(), m_request->sentUrl(), m_request->sentBody(),
+            status, msec);
+    });
     // 保存到集合
     connect(m_request, &RequestPanel::saveToCollectionRequested,
             this, &MainWindow::openSaveToCollection);
