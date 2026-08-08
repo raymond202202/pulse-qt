@@ -26,6 +26,7 @@
 | 4 | 本轮 | 阶段4 Headers/Params | ✅ | Body/Headers/Params 页签；表编辑（启用/Key/Value）；Params 自动拼 URL；Headers 设请求头；载荷持久化+旧库迁移实测 v0.5.0 |
 | 5 | 本轮 | 阶段5 AI 面板 | ✅ | FlareServer spawn flare server（JSON Lines）；AI 助手页签+流式聊天+12 个宿主工具（http_request 异步/pulse_*）；上下文快照；端到端实测 v0.6.0 |
 | 6 | 本轮 | 阶段6 打磨 | ✅ | 快捷键（Ctrl+Enter/Ctrl+S）；状态栏（环境/flare/最近响应）；大响应文本截断+树懒加载；全部 7 阶段完成 v0.7.0 |
+| 7 | 本轮 | 无（全部完成） | ✅ | 夜间验证轮：无未完成阶段；重新构建 0 错误；offscreen 冒烟启动正常；工作区干净 |
 
 ## 构建命令
 
