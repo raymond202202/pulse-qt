@@ -99,9 +99,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // 发送完成后自动记录历史（存发送时的原始值 + 响应状态/耗时）
     connect(m_request, &RequestPanel::responseReceived, this,
             [this](int status, qint64 msec, const QByteArray &) {
-        HistoryStore::instance()->addEntry(
-            m_request->sentMethod(), m_request->sentUrl(), m_request->sentBody(),
-            status, msec);
+        HistoryStore::instance()->addEntry(m_request->sentPayload(), status, msec);
     });
     // 保存到集合
     connect(m_request, &RequestPanel::saveToCollectionRequested,
@@ -112,13 +110,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
 void MainWindow::openSaveToCollection() {
     m_saveDialog = new SaveToCollectionDialog(
-        m_request->method(), m_request->url(), m_request->bodyText(), this);
+        m_request->payload().method, m_request->payload().url, m_request->payload().body, this);
     m_saveDialog->setAttribute(Qt::WA_DeleteOnClose);
     connect(m_saveDialog, &QDialog::accepted, this, [this]() {
         const auto target = m_saveDialog->target();
         CollectionStore::instance()->addRequest(
             target.first, target.second, m_saveDialog->requestName(),
-            {m_request->method(), m_request->url(), m_request->bodyText()});
+            m_request->payload());
     });
     m_saveDialog->open();
 }

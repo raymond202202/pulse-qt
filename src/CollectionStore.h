@@ -2,15 +2,14 @@
 
 #include <QObject>
 #include <QVector>
+#include "KeyValue.h"
 
-// 集合项：文件夹（isFolder=true，children 递归）或请求（method/url/body）
+// 集合项：文件夹（isFolder=true，children 递归）或请求（payload）
 struct CollectionItem {
     QString id;
     QString name;
     bool isFolder = false;
-    QString method = QStringLiteral("GET");
-    QString url;
-    QString body;
+    RequestPayload payload;
     QVector<CollectionItem> children;
 };
 
@@ -31,12 +30,6 @@ public:
     Collection *collectionById(const QString &id);
     const CollectionItem *findItem(const QString &collectionId, const QString &itemId) const;
 
-    struct RequestData {
-        QString method;
-        QString url;
-        QString body;
-    };
-
 public slots:
     void addCollection(const QString &name);
     void renameCollection(const QString &id, const QString &name);
@@ -44,7 +37,7 @@ public slots:
     // parentItemId 为空 = 集合顶层；返回新项 id（失败返回空串）
     QString addFolder(const QString &collectionId, const QString &parentItemId, const QString &name);
     QString addRequest(const QString &collectionId, const QString &parentItemId,
-                       const QString &name, const RequestData &req);
+                       const QString &name, const RequestPayload &req);
     void removeItem(const QString &collectionId, const QString &itemId);
     void renameItem(const QString &collectionId, const QString &itemId, const QString &name);
 

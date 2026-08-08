@@ -87,9 +87,9 @@ void CollectionTree::populateChildren(QTreeWidgetItem *parent,
             m_keyOf.insert(item, qMakePair(collectionId, it.id));
             populateChildren(item, it.children, collectionId);
         } else {
-            item->setText(0, QStringLiteral("%1  %2").arg(it.method).arg(it.name));
-            item->setForeground(0, methodColor(it.method));
-            item->setData(0, Qt::UserRole, it.method); // 请求行标记
+            item->setText(0, QStringLiteral("%1  %2").arg(it.payload.method).arg(it.name));
+            item->setForeground(0, methodColor(it.payload.method));
+            item->setData(0, Qt::UserRole, it.payload.method); // 请求行标记
             m_keyOf.insert(item, qMakePair(collectionId, it.id));
         }
     }
@@ -133,7 +133,7 @@ void CollectionTree::onItemClicked(QTreeWidgetItem *item, int column) {
     const auto key = m_keyOf.value(item);
     const CollectionItem *ci = CollectionStore::instance()->findItem(key.first, key.second);
     if (!ci || ci->isFolder) return;
-    emit requestActivated(ci->method, ci->url, ci->body);
+    emit requestActivated(ci->payload);
 }
 
 void CollectionTree::onCustomContextMenu(const QPoint &pos) {
@@ -170,9 +170,11 @@ void CollectionTree::showContextMenu(QTreeWidgetItem *item, const QPoint &global
             bool ok = false;
             const QString name = QInputDialog::getText(this, QStringLiteral("新建请求"),
                 QStringLiteral("请求名称："), QLineEdit::Normal, QStringLiteral("新请求"), &ok);
-            if (ok && !name.trimmed().isEmpty())
-                store->addRequest(collectionId, itemId, name.trimmed(),
-                                  {QStringLiteral("GET"), QString(), QString()});
+            if (ok && !name.trimmed().isEmpty()) {
+                RequestPayload p;
+                p.method = QStringLiteral("GET");
+                store->addRequest(collectionId, itemId, name.trimmed(), p);
+            }
         } else if (chosen == rename) {
             const QString cur = store->findItem(collectionId, itemId)->name;
             bool ok = false;
@@ -206,9 +208,11 @@ void CollectionTree::showContextMenu(QTreeWidgetItem *item, const QPoint &global
         bool ok = false;
         const QString name = QInputDialog::getText(this, QStringLiteral("新建请求"),
             QStringLiteral("请求名称："), QLineEdit::Normal, QStringLiteral("新请求"), &ok);
-        if (ok && !name.trimmed().isEmpty())
-            store->addRequest(collectionId, QString(), name.trimmed(),
-                              {QStringLiteral("GET"), QString(), QString()});
+        if (ok && !name.trimmed().isEmpty()) {
+            RequestPayload p;
+            p.method = QStringLiteral("GET");
+            store->addRequest(collectionId, QString(), name.trimmed(), p);
+        }
     } else if (chosen == rename) {
         bool ok = false;
         const QString name = QInputDialog::getText(this, QStringLiteral("重命名"),

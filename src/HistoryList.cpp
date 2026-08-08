@@ -57,17 +57,15 @@ void HistoryList::reload() {
     for (const HistoryEntry &e : entries) {
         QString status = e.status > 0 ? QString::number(e.status) : QStringLiteral("—");
         const QString text = QStringLiteral("%1  %2\n%3  %4")
-                                 .arg(e.method)
-                                 .arg(e.url)
+                                 .arg(e.payload.method)
+                                 .arg(e.payload.url)
                                  .arg(shortTime(e.createdAt))
                                  .arg(QStringLiteral("状态 %1 · %2 ms").arg(status).arg(e.msec));
         auto *item = new QListWidgetItem(text);
         item->setForeground(statusColor(e.status));
         item->setData(Qt::UserRole, e.id);
-        item->setData(Qt::UserRole + 1, e.method);
-        item->setData(Qt::UserRole + 2, e.url);
-        item->setData(Qt::UserRole + 3, e.body);
-        item->setToolTip(e.url);
+        item->setData(Qt::UserRole + 1, QVariant::fromValue(e.payload));
+        item->setToolTip(e.payload.url);
         m_list->addItem(item);
     }
     if (entries.isEmpty())
@@ -76,10 +74,8 @@ void HistoryList::reload() {
 
 void HistoryList::onItemClicked(QListWidgetItem *item) {
     if (!item) return;
-    const QString method = item->data(Qt::UserRole + 1).toString();
-    const QString url = item->data(Qt::UserRole + 2).toString();
-    const QString body = item->data(Qt::UserRole + 3).toString();
-    if (!url.isEmpty()) emit requestActivated(method, url, body);
+    const RequestPayload req = item->data(Qt::UserRole + 1).value<RequestPayload>();
+    if (!req.url.isEmpty()) emit requestActivated(req);
 }
 
 void HistoryList::onCustomContextMenu(const QPoint &pos) {

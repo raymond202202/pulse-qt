@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include "KeyValue.h"
 
 class QListWidget;
 class QListWidgetItem;
@@ -12,7 +13,7 @@ public:
     explicit HistoryList(QWidget *parent = nullptr);
 
 signals:
-    void requestActivated(const QString &method, const QString &url, const QString &body);
+    void requestActivated(const RequestPayload &req);
 
 private slots:
     void reload();

@@ -17,7 +17,7 @@ public:
     explicit CollectionTree(QWidget *parent = nullptr);
 
 signals:
-    void requestActivated(const QString &method, const QString &url, const QString &body);
+    void requestActivated(const RequestPayload &req);
 
 private slots:
     void reload();

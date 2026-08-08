@@ -5,6 +5,8 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDateTime>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include <QDebug>
 
 namespace {
@@ -37,9 +39,23 @@ bool HistoryStore::openDatabase() {
         " method TEXT NOT NULL,"
         " url TEXT NOT NULL,"
         " body TEXT DEFAULT '',"
+        " headers TEXT DEFAULT '[]',"
+        " params TEXT DEFAULT '[]',"
         " status INTEGER DEFAULT 0,"
         " msec INTEGER DEFAULT 0,"
         " created_at TEXT NOT NULL)"));
+
+    // 旧库迁移：补 headers/params 列
+    QSqlQuery pragma(m_db);
+    pragma.exec(QStringLiteral("PRAGMA table_info(history)"));
+    bool hasHeaders = false, hasParams = false;
+    while (pragma.next()) {
+        const QString name = pragma.value(1).toString();
+        if (name == QStringLiteral("headers")) hasHeaders = true;
+        if (name == QStringLiteral("params")) hasParams = true;
+    }
+    if (!hasHeaders) q.exec(QStringLiteral("ALTER TABLE history ADD COLUMN headers TEXT DEFAULT '[]'"));
+    if (!hasParams) q.exec(QStringLiteral("ALTER TABLE history ADD COLUMN params TEXT DEFAULT '[]'"));
     return true;
 }
 
@@ -48,35 +64,42 @@ QVector<HistoryEntry> HistoryStore::entries(int limit) const {
     if (!m_db.isOpen()) return out;
     QSqlQuery q(m_db);
     q.prepare(QStringLiteral(
-        "SELECT id, method, url, body, status, msec, created_at"
+        "SELECT id, method, url, body, headers, params, status, msec, created_at"
         " FROM history ORDER BY id DESC LIMIT ?"));
     q.addBindValue(limit);
     if (!q.exec()) return out;
     while (q.next()) {
         HistoryEntry e;
         e.id = q.value(0).toLongLong();
-        e.method = q.value(1).toString();
-        e.url = q.value(2).toString();
-        e.body = q.value(3).toString();
-        e.status = q.value(4).toInt();
-        e.msec = q.value(5).toLongLong();
-        e.createdAt = q.value(6).toString();
+        e.payload.method = q.value(1).toString();
+        e.payload.url = q.value(2).toString();
+        e.payload.body = q.value(3).toString();
+        e.payload.headers = KeyValueRow::fromJson(
+            QJsonDocument::fromJson(q.value(4).toString().toUtf8()).array());
+        e.payload.params = KeyValueRow::fromJson(
+            QJsonDocument::fromJson(q.value(5).toString().toUtf8()).array());
+        e.status = q.value(6).toInt();
+        e.msec = q.value(7).toLongLong();
+        e.createdAt = q.value(8).toString();
         out.append(e);
     }
     return out;
 }
 
-void HistoryStore::addEntry(const QString &method, const QString &url, const QString &body,
-                            int status, qint64 msec) {
+void HistoryStore::addEntry(const RequestPayload &payload, int status, qint64 msec) {
     if (!m_db.isOpen()) return;
-    if (url.trimmed().isEmpty()) return;
+    if (payload.url.trimmed().isEmpty()) return;
     QSqlQuery q(m_db);
     q.prepare(QStringLiteral(
-        "INSERT INTO history (method, url, body, status, msec, created_at)"
-        " VALUES (?, ?, ?, ?, ?, ?)"));
-    q.addBindValue(method.toUpper());
-    q.addBindValue(url);
-    q.addBindValue(body);
+        "INSERT INTO history (method, url, body, headers, params, status, msec, created_at)"
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?)"));
+    q.addBindValue(payload.method.toUpper());
+    q.addBindValue(payload.url);
+    q.addBindValue(payload.body);
+    q.addBindValue(QString::fromUtf8(
+        QJsonDocument(KeyValueRow::toJson(payload.headers)).toJson(QJsonDocument::Compact)));
+    q.addBindValue(QString::fromUtf8(
+        QJsonDocument(KeyValueRow::toJson(payload.params)).toJson(QJsonDocument::Compact)));
     q.addBindValue(status);
     q.addBindValue(msec);
     q.addBindValue(QDateTime::currentDateTime().toString(Qt::ISODate));

@@ -31,9 +31,11 @@ QJsonObject CollectionStore::itemToJson(const CollectionItem &item) {
     o.insert("name", item.name);
     o.insert("isFolder", item.isFolder);
     if (!item.isFolder) {
-        o.insert("method", item.method);
-        o.insert("url", item.url);
-        o.insert("body", item.body);
+        o.insert("method", item.payload.method);
+        o.insert("url", item.payload.url);
+        o.insert("body", item.payload.body);
+        o.insert("headers", KeyValueRow::toJson(item.payload.headers));
+        o.insert("params", KeyValueRow::toJson(item.payload.params));
     }
     QJsonArray children;
     for (const CollectionItem &c : item.children) children.append(itemToJson(c));
@@ -47,9 +49,11 @@ CollectionItem CollectionStore::itemFromJson(const QJsonObject &o) {
     item.name = o.value("name").toString();
     item.isFolder = o.value("isFolder").toBool(false);
     if (!item.isFolder) {
-        item.method = o.value("method").toString(QStringLiteral("GET"));
-        item.url = o.value("url").toString();
-        item.body = o.value("body").toString();
+        item.payload.method = o.value("method").toString(QStringLiteral("GET"));
+        item.payload.url = o.value("url").toString();
+        item.payload.body = o.value("body").toString();
+        item.payload.headers = KeyValueRow::fromJson(o.value("headers").toArray());
+        item.payload.params = KeyValueRow::fromJson(o.value("params").toArray());
     }
     const QJsonArray children = o.value("children").toArray();
     for (const QJsonValue &v : children) item.children.append(itemFromJson(v.toObject()));
@@ -214,16 +218,14 @@ QString CollectionStore::addFolder(const QString &collectionId, const QString &p
 }
 
 QString CollectionStore::addRequest(const QString &collectionId, const QString &parentItemId,
-                                    const QString &name, const RequestData &req) {
+                                    const QString &name, const RequestPayload &req) {
     Collection *col = collectionById(collectionId);
     if (!col) return QString();
     CollectionItem item;
     item.id = newId();
     item.name = name;
     item.isFolder = false;
-    item.method = req.method;
-    item.url = req.url;
-    item.body = req.body;
+    item.payload = req;
 
     bool ok = false;
     if (parentItemId.isEmpty()) {
