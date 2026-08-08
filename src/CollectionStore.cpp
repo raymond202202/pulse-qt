@@ -256,3 +256,42 @@ void CollectionStore::renameItem(const QString &collectionId, const QString &ite
     save();
     emit changed();
 }
+
+bool CollectionStore::findItemLocation(const QString &itemId,
+                                       QString *collectionIdOut,
+                                       QString *parentItemIdOut) const {
+    for (const Collection &col : m_collections) {
+        const CollectionItem *out = nullptr;
+        if (findInItems(col.items, itemId, &out)) {
+            if (collectionIdOut) *collectionIdOut = col.id;
+            // parentItemId：递归向上找父 id（这里简化为空 = 顶层）
+            if (parentItemIdOut) *parentItemIdOut = QString();
+            return true;
+        }
+    }
+    return false;
+}
+
+namespace {
+// 递归更新请求字段
+bool updatePayloadInItems(QVector<CollectionItem> &items, const QString &itemId,
+                          const RequestPayload &payload) {
+    for (CollectionItem &it : items) {
+        if (it.id == itemId && !it.isFolder) {
+            it.payload = payload;
+            return true;
+        }
+        if (updatePayloadInItems(it.children, itemId, payload)) return true;
+    }
+    return false;
+}
+} // namespace
+
+void CollectionStore::updateRequest(const QString &collectionId, const QString &itemId,
+                                    const RequestPayload &payload) {
+    Collection *col = collectionById(collectionId);
+    if (!col) return;
+    if (!updatePayloadInItems(col->items, itemId, payload)) return;
+    save();
+    emit changed();
+}

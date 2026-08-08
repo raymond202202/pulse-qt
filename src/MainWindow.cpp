@@ -3,6 +3,7 @@
 #include "ResponsePanel.h"
 #include "CollectionTree.h"
 #include "HistoryList.h"
+#include "AiPanel.h"
 #include "CollectionStore.h"
 #include "HistoryStore.h"
 #include "SaveToCollectionDialog.h"
@@ -82,8 +83,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_request = new RequestPanel(this);
     splitter->addWidget(m_request);
 
+    // 右栏：响应 / AI 助手 页签
+    m_rightTabs = new QTabWidget(this);
     m_response = new ResponsePanel(this);
-    splitter->addWidget(m_response);
+    m_ai = new AiPanel(m_request, m_response, this);
+    m_rightTabs->addTab(m_response, QStringLiteral("响应"));
+    m_rightTabs->addTab(m_ai, QStringLiteral("AI 助手"));
+    splitter->addWidget(m_rightTabs);
 
     splitter->setStretchFactor(0, 2);
     splitter->setStretchFactor(1, 4);

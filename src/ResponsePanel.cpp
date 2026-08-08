@@ -97,6 +97,9 @@ ResponsePanel::ResponsePanel(QWidget *parent) : QWidget(parent) {
 
 void ResponsePanel::showResponse(int status, qint64 msec, const QByteArray &body) {
     m_lastBody = body;
+    m_lastStatus = status;
+    m_lastMsec = msec;
+    m_hasResponse = true;
 
     QJsonParseError err{};
     const QJsonDocument doc = QJsonDocument::fromJson(body, &err);

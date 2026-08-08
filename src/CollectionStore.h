@@ -40,6 +40,12 @@ public slots:
                        const QString &name, const RequestPayload &req);
     void removeItem(const QString &collectionId, const QString &itemId);
     void renameItem(const QString &collectionId, const QString &itemId, const QString &name);
+    // 全局按 itemId 定位所属 (collectionId, parentItemId)
+    bool findItemLocation(const QString &itemId,
+                          QString *collectionIdOut, QString *parentItemIdOut) const;
+    // 整包更新请求字段（AI 工具用）
+    void updateRequest(const QString &collectionId, const QString &itemId,
+                       const RequestPayload &payload);
 
 signals:
     void changed();

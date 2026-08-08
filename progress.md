@@ -10,7 +10,7 @@
 - [x] **阶段 1 响应 JSON 树**：ResponsePanel 嵌入 JsonTreeModel/Delegate（复用 jsonview），JSON 响应树形展示（而非纯文本），树形/文本双视图 + 状态着色 + 复制 + 浅色紫配主题
 - [x] **阶段 2 集合/环境**：左栏集合树（集合→文件夹→请求，右键管理、点击回填）+ 环境变量管理（多环境 + `{{var}}` 占位符替换 URL/Body）+ 保存到集合
 - [x] **阶段 3 历史记录**：SQLite 存请求历史（方法/URL/时间/状态），发送自动记录，左栏"历史"页签点击回填请求区
-- [ ] **阶段 4 Headers 编辑**：请求 Headers 表编辑（Key/Value 行）+ Params 表（自动拼到 URL）
+- [x] **阶段 4 Headers 编辑**：请求 Headers 表编辑（启用/Key/Value 行）+ Params 表（自动拼到 URL），载荷持久化到集合/历史
 - [ ] **阶段 5 AI 面板**：接 flare server（spawn 子进程 + JSON Lines 协议），网络专家（解释报错/生成请求），参考 Pulse 的 pulseTools 语义
 - [ ] **阶段 6 打磨**：大响应懒加载/主题（浅色白底紫配 #6d4aff）/状态栏细节/快捷键
 
@@ -22,6 +22,7 @@
 | 1 | 本轮 | 阶段1 JSON 树 | ✅ | ResponsePanel 嵌入 jsonview 懒加载树；树形/文本切换；状态着色；浅色紫配主题 QSS；冒烟测试通过 |
 | 2 | 本轮 | 阶段2 集合/环境 | ✅ | CollectionStore/EnvironmentStore 单例（QSettings）；左栏集合树+右键管理；环境对话框+{{var}}解析；保存到集合；三栏布局 v0.3.0 |
 | 3 | 本轮 | 阶段3 历史记录 | ✅ | HistoryStore（QSQLITE，500条上限）；发送自动记录；历史页签点击回填；SQLite 写入/查询实测通过 v0.4.0 |
+| 4 | 本轮 | 阶段4 Headers/Params | ✅ | Body/Headers/Params 页签；表编辑（启用/Key/Value）；Params 自动拼 URL；Headers 设请求头；载荷持久化+旧库迁移实测 v0.5.0 |
 
 ## 构建命令
 

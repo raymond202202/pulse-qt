@@ -18,6 +18,12 @@ class ResponsePanel : public QWidget {
 public:
     explicit ResponsePanel(QWidget *parent = nullptr);
 
+    // 最近一次响应（供 AI 工具 / 状态栏读取）
+    int lastStatus() const { return m_lastStatus; }
+    qint64 lastMsec() const { return m_lastMsec; }
+    QByteArray lastBody() const { return m_lastBody; }
+    bool hasResponse() const { return m_hasResponse; }
+
 public slots:
     void showResponse(int status, qint64 msec, const QByteArray &body);
 
@@ -39,4 +45,7 @@ private:
     QByteArray m_lastBody;
     QString m_lastPrettyJson;
     bool m_lastIsJson = false;
+    int m_lastStatus = 0;
+    qint64 m_lastMsec = 0;
+    bool m_hasResponse = false;
 };

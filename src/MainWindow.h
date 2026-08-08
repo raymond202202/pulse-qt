@@ -6,6 +6,7 @@ class RequestPanel;
 class ResponsePanel;
 class CollectionTree;
 class HistoryList;
+class AiPanel;
 class SaveToCollectionDialog;
 class QTabWidget;
 
@@ -22,6 +23,8 @@ private:
     ResponsePanel *m_response = nullptr;
     CollectionTree *m_collections = nullptr;
     HistoryList *m_history = nullptr;
+    AiPanel *m_ai = nullptr;
     QTabWidget *m_leftTabs = nullptr;
+    QTabWidget *m_rightTabs = nullptr;
     SaveToCollectionDialog *m_saveDialog = nullptr;
 };
