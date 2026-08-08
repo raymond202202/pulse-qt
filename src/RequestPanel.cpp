@@ -27,6 +27,7 @@ RequestPanel::RequestPanel(QWidget *parent) : QWidget(parent) {
     row->addWidget(m_url, 1);
 
     auto *send = new QPushButton(QStringLiteral("发送"), this);
+    send->setObjectName("sendButton");
     connect(send, &QPushButton::clicked, this, &RequestPanel::sendRequest);
     row->addWidget(send);
 

@@ -4,7 +4,15 @@
 
 class QLabel;
 class QPlainTextEdit;
+class QPushButton;
+class QTreeView;
+class QButtonGroup;
+class QStackedWidget;
+class JsonTreeModel;
+class JsonTreeDelegate;
 
+// 响应面板：元信息（状态/耗时/大小）+ 树形/文本双视图
+// JSON 响应走 JsonTreeModel/Delegate 懒加载树，非 JSON 回落纯文本
 class ResponsePanel : public QWidget {
     Q_OBJECT
 public:
@@ -13,7 +21,22 @@ public:
 public slots:
     void showResponse(int status, qint64 msec, const QByteArray &body);
 
+private slots:
+    void switchView(int id);
+    void copyBody();
+
 private:
-    QLabel *m_meta = nullptr;
-    QPlainTextEdit *m_body = nullptr;
+    void setViewEnabled(bool treeEnabled);
+
+    QLabel *m_statusLabel = nullptr;
+    QLabel *m_metaLabel = nullptr;
+    QTreeView *m_tree = nullptr;
+    QPlainTextEdit *m_text = nullptr;
+    QStackedWidget *m_stack = nullptr;
+    QButtonGroup *m_viewGroup = nullptr;
+    JsonTreeModel *m_model = nullptr;
+    JsonTreeDelegate *m_delegate = nullptr;
+    QByteArray m_lastBody;
+    QString m_lastPrettyJson;
+    bool m_lastIsJson = false;
 };
