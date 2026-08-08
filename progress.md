@@ -12,7 +12,8 @@
 - [x] **阶段 3 历史记录**：SQLite 存请求历史（方法/URL/时间/状态），发送自动记录，左栏"历史"页签点击回填请求区
 - [x] **阶段 4 Headers 编辑**：请求 Headers 表编辑（启用/Key/Value 行）+ Params 表（自动拼到 URL），载荷持久化到集合/历史
 - [x] **阶段 5 AI 面板**：接 flare server（spawn 子进程 + JSON Lines 协议），网络专家（解释报错/生成请求/工具调用），key 由 flare 从环境变量/~/.flare/.env 读取（不硬编码）
-- [ ] **阶段 6 打磨**：大响应懒加载/主题（浅色白底紫配 #6d4aff）/状态栏细节/快捷键
+- [x] **阶段 6 打磨**：大响应懒加载（树按需展开 + 文本 >512KB 截断提示）/主题（浅色白底紫配 #6d4aff）/状态栏（版本·环境·flare·最近响应）/快捷键（Ctrl+Enter 发送、Ctrl+S 保存）
+- [x] **全部阶段完成** 🎉 7 个阶段（0-6）全部构建通过并 commit
 
 ## 迭代记录
 
@@ -24,6 +25,7 @@
 | 3 | 本轮 | 阶段3 历史记录 | ✅ | HistoryStore（QSQLITE，500条上限）；发送自动记录；历史页签点击回填；SQLite 写入/查询实测通过 v0.4.0 |
 | 4 | 本轮 | 阶段4 Headers/Params | ✅ | Body/Headers/Params 页签；表编辑（启用/Key/Value）；Params 自动拼 URL；Headers 设请求头；载荷持久化+旧库迁移实测 v0.5.0 |
 | 5 | 本轮 | 阶段5 AI 面板 | ✅ | FlareServer spawn flare server（JSON Lines）；AI 助手页签+流式聊天+12 个宿主工具（http_request 异步/pulse_*）；上下文快照；端到端实测 v0.6.0 |
+| 6 | 本轮 | 阶段6 打磨 | ✅ | 快捷键（Ctrl+Enter/Ctrl+S）；状态栏（环境/flare/最近响应）；大响应文本截断+树懒加载；全部 7 阶段完成 v0.7.0 |
 
 ## 构建命令
 
