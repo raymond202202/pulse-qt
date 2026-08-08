@@ -11,7 +11,7 @@
 - [x] **阶段 2 集合/环境**：左栏集合树（集合→文件夹→请求，右键管理、点击回填）+ 环境变量管理（多环境 + `{{var}}` 占位符替换 URL/Body）+ 保存到集合
 - [x] **阶段 3 历史记录**：SQLite 存请求历史（方法/URL/时间/状态），发送自动记录，左栏"历史"页签点击回填请求区
 - [x] **阶段 4 Headers 编辑**：请求 Headers 表编辑（启用/Key/Value 行）+ Params 表（自动拼到 URL），载荷持久化到集合/历史
-- [ ] **阶段 5 AI 面板**：接 flare server（spawn 子进程 + JSON Lines 协议），网络专家（解释报错/生成请求），参考 Pulse 的 pulseTools 语义
+- [x] **阶段 5 AI 面板**：接 flare server（spawn 子进程 + JSON Lines 协议），网络专家（解释报错/生成请求/工具调用），key 由 flare 从环境变量/~/.flare/.env 读取（不硬编码）
 - [ ] **阶段 6 打磨**：大响应懒加载/主题（浅色白底紫配 #6d4aff）/状态栏细节/快捷键
 
 ## 迭代记录
@@ -23,6 +23,7 @@
 | 2 | 本轮 | 阶段2 集合/环境 | ✅ | CollectionStore/EnvironmentStore 单例（QSettings）；左栏集合树+右键管理；环境对话框+{{var}}解析；保存到集合；三栏布局 v0.3.0 |
 | 3 | 本轮 | 阶段3 历史记录 | ✅ | HistoryStore（QSQLITE，500条上限）；发送自动记录；历史页签点击回填；SQLite 写入/查询实测通过 v0.4.0 |
 | 4 | 本轮 | 阶段4 Headers/Params | ✅ | Body/Headers/Params 页签；表编辑（启用/Key/Value）；Params 自动拼 URL；Headers 设请求头；载荷持久化+旧库迁移实测 v0.5.0 |
+| 5 | 本轮 | 阶段5 AI 面板 | ✅ | FlareServer spawn flare server（JSON Lines）；AI 助手页签+流式聊天+12 个宿主工具（http_request 异步/pulse_*）；上下文快照；端到端实测 v0.6.0 |
 
 ## 构建命令
 

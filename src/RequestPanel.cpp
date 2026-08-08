@@ -10,6 +10,8 @@
 #include <QTabWidget>
 #include <QHeaderView>
 #include <QLabel>
+#include <QShortcut>
+#include <QKeySequence>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -105,6 +107,13 @@ RequestPanel::RequestPanel(QWidget *parent) : QWidget(parent) {
     connect(addParam, &QPushButton::clicked, this, &RequestPanel::addParamRow);
     connect(delHeader, &QPushButton::clicked, this, &RequestPanel::removeSelectedRow);
     connect(delParam, &QPushButton::clicked, this, &RequestPanel::removeSelectedRow);
+
+    // 快捷键：URL 回车 / Ctrl+Enter 发送，Ctrl+S 保存到集合
+    connect(m_url, &QLineEdit::returnPressed, this, &RequestPanel::sendRequest);
+    auto *sendShortcut = new QShortcut(QKeySequence(QStringLiteral("Ctrl+Return")), this);
+    connect(sendShortcut, &QShortcut::activated, this, &RequestPanel::sendRequest);
+    auto *saveShortcut = new QShortcut(QKeySequence(QStringLiteral("Ctrl+S")), this);
+    connect(saveShortcut, &QShortcut::activated, this, &RequestPanel::saveToCollection);
 
     m_nam = new QNetworkAccessManager(this);
 }

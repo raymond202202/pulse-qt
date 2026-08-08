@@ -123,7 +123,21 @@ void ResponsePanel::showResponse(int status, qint64 msec, const QByteArray &body
         m_lastPrettyJson.clear();
     }
     m_metaLabel->setText(meta);
-    m_text->setPlainText(isJson ? m_lastPrettyJson : QString::fromUtf8(body));
+
+    // 大响应懒加载：树视图走 JsonTreeModel 懒加载；文本视图超大时截断提示
+    const qint64 kTextPreviewLimit = 512 * 1024; // 文本预览上限 512KB
+    QString text;
+    if (isJson) {
+        text = m_lastPrettyJson;
+    } else {
+        text = QString::fromUtf8(body);
+    }
+    if (body.size() > kTextPreviewLimit) {
+        text = QStringLiteral("⚠ 响应较大（%1），文本视图仅预览前 256KB；树形视图支持按需展开：\n\n%2")
+                   .arg(formatBytes(body.size()))
+                   .arg(text.left(256 * 1024));
+    }
+    m_text->setPlainText(text);
 
     setViewEnabled(isJson);
     if (isJson) {

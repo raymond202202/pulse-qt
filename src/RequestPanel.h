@@ -24,13 +24,13 @@ public:
 
 public slots:
     void loadRequest(const RequestPayload &req);
+    void sendRequest();
 
 signals:
     void responseReceived(int status, qint64 msec, const QByteArray &body);
     void saveToCollectionRequested();
 
 private slots:
-    void sendRequest();
     void saveToCollection();
     void addHeaderRow();
     void addParamRow();

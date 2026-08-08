@@ -6,6 +6,8 @@
 #include "AiPanel.h"
 #include "CollectionStore.h"
 #include "HistoryStore.h"
+#include "EnvironmentStore.h"
+#include "FlareServer.h"
 #include "SaveToCollectionDialog.h"
 #include <QSplitter>
 #include <QTabWidget>
@@ -111,7 +113,38 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(m_request, &RequestPanel::saveToCollectionRequested,
             this, &MainWindow::openSaveToCollection);
 
+    // ── 状态栏：版本 / 环境 / flare / 最近响应 ──
     statusBar()->addWidget(new QLabel(QStringLiteral("pulse-qt v%1").arg(APP_VERSION), this));
+
+    auto *envLabel = new QLabel(this);
+    auto *flareLabel = new QLabel(this);
+    auto *respLabel = new QLabel(QStringLiteral("最近: —"), this);
+    statusBar()->addPermanentWidget(respLabel);
+    statusBar()->addPermanentWidget(flareLabel);
+    statusBar()->addPermanentWidget(envLabel);
+
+    const auto updateEnv = [envLabel]() {
+        const QString id = EnvironmentStore::instance()->activeEnvironmentId();
+        const Environment *e = EnvironmentStore::instance()->environmentById(id);
+        envLabel->setText(e ? QStringLiteral("环境: %1").arg(e->name)
+                            : QStringLiteral("环境: 无"));
+    };
+    connect(EnvironmentStore::instance(), &EnvironmentStore::activeChanged, this, updateEnv);
+    connect(EnvironmentStore::instance(), &EnvironmentStore::changed, this, updateEnv);
+    updateEnv();
+
+    const auto updateFlare = [flareLabel](bool running, const QString &) {
+        flareLabel->setText(running ? QStringLiteral("flare: 已连接")
+                                    : QStringLiteral("flare: 未连接"));
+    };
+    connect(FlareServer::instance(), &FlareServer::stateChanged, this, updateFlare);
+    updateFlare(FlareServer::instance()->isRunning(), QString());
+
+    connect(m_request, &RequestPanel::responseReceived, this,
+            [this, respLabel](int status, qint64 msec, const QByteArray &) {
+        respLabel->setText(QStringLiteral("最近: HTTP %1 · %2 ms").arg(status).arg(msec));
+        statusBar()->showMessage(QStringLiteral("请求完成：HTTP %1 · %2 ms").arg(status).arg(msec), 3000);
+    });
 }
 
 void MainWindow::openSaveToCollection() {
